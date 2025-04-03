@@ -13,7 +13,7 @@ from companydetails.serializers import (CompanyEmployeeSerializer, CandidateSkil
 hr_iterator = None
 
 def get_next_hr():
-    """Fetch the next HR employee in a round-robin manner."""
+    
     global hr_iterator
     hr_queryset = AccessEmployee.objects.filter(role='HR').values_list('employee_id', flat=True)
 
