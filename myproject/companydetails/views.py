@@ -13,17 +13,16 @@ from companydetails.serializers import (CompanyEmployeeSerializer, CandidateSkil
 hr_iterator = None
 
 def get_next_hr():
-    
-    global hr_iterator
-    hr_queryset = AccessEmployee.objects.filter(role='HR').values_list('employee_id', flat=True)
+    hr_queryset = list(
+        AccessEmployee.objects.filter(role='HR').order_by('employee_id').values_list('employee_id', flat=True)
+    )
 
-    if not hr_queryset.exists():
+    if not hr_queryset:
         return None  # No HRs available
 
-    if hr_iterator is None or not hr_queryset:
-        hr_iterator = cycle(hr_queryset)
+    hr_iterator = cycle(hr_queryset)
 
-    return next(hr_iterator, None)
+    return next(hr_iterator)
 
 class CompanyEmployeeListView(APIView):
     def get(self, request):
@@ -36,7 +35,6 @@ class CompanyEmployeeListView(APIView):
         if serializer.is_valid():
             employee = serializer.save()
 
-            # ✅ Automatically assign "HR" role if no role is set
             if not AccessEmployee.objects.filter(employee=employee).exists():
                 AccessEmployee.objects.create(employee=employee, role="HR")
 
@@ -88,7 +86,7 @@ class CandidateListView(APIView):
             candidate = serializer.save()
             hr_id = get_next_hr()  # Get next available HR ID
 
-            if hr_id:
+            if hr_id and CompanyEmployee.objects.filter(id=hr_id).exists():
                 candidate.assigned_hr = CompanyEmployee.objects.get(id=hr_id)
                 candidate.save()
 
@@ -130,7 +128,7 @@ class CandidateSkillListAPIView(APIView):
 
 class HRAssignedCandidateListView(APIView):
     def get(self, request):
-        hr_list = CompanyEmployee.objects.filter(accessemployee__role="HR")
+        hr_list = CompanyEmployee.objects.filter(access_role__role="HR").distinct()
         hr_data = []
 
         for hr in hr_list:
@@ -141,3 +139,5 @@ class HRAssignedCandidateListView(APIView):
             })
 
         return Response(hr_data, status=status.HTTP_200_OK)
+
+

@@ -1,18 +1,21 @@
 from rest_framework import serializers
 from companydetails.models import CompanyEmployee, AccessEmployee, Candidate, CandidateSkill
 
-class CompanyEmployeeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CompanyEmployee
-        fields = ['id', 'username', 'designation', 'department']            
 
 class AccessEmployeeSerializer(serializers.ModelSerializer):
     employee = serializers.PrimaryKeyRelatedField(queryset=CompanyEmployee.objects.all())
 
     class Meta:
         model = AccessEmployee
-        fields = ['id', 'employee', 'role']
+        fields = ['employee', 'role']
         
+class CompanyEmployeeSerializer(serializers.ModelSerializer):
+    roles = AccessEmployeeSerializer(many=True, read_only=True, source="access_role")
+    
+    class Meta:
+        model = CompanyEmployee
+        fields = ['id', 'username', 'designation', 'department', 'roles'] 
+
 class CandidateSkillSerializer(serializers.ModelSerializer):
     candidate = serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all())
 
@@ -29,9 +32,14 @@ class CandidateSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'email', 'phone', 'applied_position', 'skills', 'assigned_hr']
 
 class HRAssignedCandidateSerializer(serializers.ModelSerializer):
-    assigned_candidates = CandidateSerializer(many=True, read_only=True)
+    assigned_candidates = CandidateSerializer(many=True, read_only=True, source="assigned_candidates")
     
     class Meta:
         model = CompanyEmployee
         fields = ['id', 'username', 'designation', 'assigned_candidates']
+
+
+
+
+
        

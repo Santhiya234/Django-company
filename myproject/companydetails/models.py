@@ -17,11 +17,12 @@ class AccessEmployee(models.Model):
         ('Manager', 'Manager'),
         ('HR', 'HR'),
     ]
-    employee = models.OneToOneField(CompanyEmployee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(CompanyEmployee, on_delete=models.CASCADE, related_name="access_role")
     role = models.CharField(max_length=50, choices=ROLE_CHOICES)
 
     def __str__(self):
         return f"{self.employee.username} - {self.role}"
+    
 
 class Candidate(models.Model):
     name = models.CharField(max_length=100)
