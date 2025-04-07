@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 class CompanyEmployee(AbstractUser):
     designation = models.CharField(max_length=150)
     department = models.CharField(max_length=150)
+    photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    
 
     groups = None
     user_permissions = None
