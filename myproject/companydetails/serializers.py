@@ -14,7 +14,7 @@ class CompanyEmployeeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CompanyEmployee
-        fields = ['id', 'username', 'designation', 'department', 'roles'] 
+        fields = ['id', 'username', 'designation', 'department', 'roles', 'photo'] 
 
 class CandidateSkillSerializer(serializers.ModelSerializer):
     candidate = serializers.PrimaryKeyRelatedField(queryset=Candidate.objects.all())
